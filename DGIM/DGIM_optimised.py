@@ -1,5 +1,9 @@
-from random import randint
 import math
+from bitarray import bitarray
+
+STREAM_SIZE = 100
+WINDOW_SIZE = 100
+
 
 class DGIM:
     def __init__(self, window_size):
@@ -10,6 +14,7 @@ class DGIM:
         self.current_max_bucket_size = -1
         for i in range(self.max_key):
             self.bucket[i] = []
+
 
     def update(self, bit, timestamp):
         timestamp = timestamp % self.window_size
@@ -50,21 +55,19 @@ class DGIM:
         print('Zostało wyestymowane {}  jedynek w przedziale ostatnich {} bitów'.format(bit_sum, bit_range))
         return bit_sum
 
+
 def dgim_error(stream, bit_range, estimated_bit_num):
     true_bit_num = sum(stream[-bit_range:-1])
     print(f'Algorytm w przedziale {bit_range} pomylił się o {estimated_bit_num-true_bit_num} bity o wartości jeden,'
           f'błąd wyniósł {(estimated_bit_num-true_bit_num)/bit_range*100}%')
 
-if __name__ == '__main__':
-    dgim = DGIM(window_size=100)
-    bit_range = 40
-    stream = []
-    [stream.append(randint(0, 1)) for i in range(100)]
 
+if __name__ == '__main__':
+    dgim = DGIM(window_size=WINDOW_SIZE)
+    bit_range = 40
+    stream = bitarray(STREAM_SIZE)
     for timestamp, bit in enumerate(stream):
         dgim.update(bit, timestamp)
 
     estimated_bit_num = dgim.ones_num(bit_range)
     dgim_error(stream, bit_range, estimated_bit_num)
-
-
